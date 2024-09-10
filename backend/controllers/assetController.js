@@ -44,7 +44,10 @@ const mintAsset = async (req, res) => {
           "--disable-web-security",
           "--disable-features=IsolateOrigins",
           "--disable-site-isolation-trials",
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
         ],
+        ignoreDefaultArgs: ["--disable-extensions"],
       });
       const page = await browser.newPage();
 

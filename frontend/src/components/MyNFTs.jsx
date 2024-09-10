@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/pagination.jsx";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Card } from "@/components/ui/card.jsx";
-import {Explorer} from "@/components/Explorer.jsx";
+import { Explorer } from "@/components/Explorer.jsx";
+import { useCanvasClient } from "@/hooks/useCanvasClient.js";
 
 export const MyNFTs = () => {
   const { umi } = useUmi();
@@ -28,6 +29,8 @@ export const MyNFTs = () => {
   const { page, setPage } = getAssetsByOwnerQuery;
 
   const { isBurning, ...removeAssetMutation } = useRemoveAssetMutation();
+
+  const { client } = useCanvasClient();
 
   const { publicKey } = useWallet();
 
@@ -72,7 +75,18 @@ export const MyNFTs = () => {
     }
   };
 
-  const handleShare = (asset) => {};
+  const handleShare = async (asset) => {
+    const html = `
+    <p>Test</p>
+    <div style="display: flex;">
+    <img src="https://storage.cvpfus.xyz/image/-U4ylGZt5w0cHaHds3fIe.svg" alt="test"/>
+    <embedded-canvas url="https://dscvr-practice.vercel.app/"></embedded-canvas>
+    </div>
+    
+    `;
+
+    await client.createPost(html);
+  };
 
   const handleImgLoad = () => {
     setIsImgLoading(false);
@@ -117,7 +131,7 @@ export const MyNFTs = () => {
                         onLoad={handleImgLoad}
                         onError={handleImgError}
                       />
-                      <Explorer publicKey={asset.publicKey}/>
+                      <Explorer publicKey={asset.publicKey} />
                       <div className="flex mt-2">
                         <Button
                           variant="destructive"

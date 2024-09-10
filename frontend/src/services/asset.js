@@ -17,7 +17,11 @@ const addAsset = async ({ userAddress }) => {
   try {
     return await axios.post(BASE_URL, data);
   } catch (error) {
-    throw new Error(error.response.data.error);
+    throw new Error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
   }
 };
 
@@ -33,7 +37,11 @@ const removeAsset = async ({ umi, asset }) => {
     }).sendAndConfirm(umi);
     toast.success(`Asset burned 🔥`);
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
   }
 };
 
@@ -74,8 +82,16 @@ const getAssets = async ({ umi, page }) => {
       })),
     };
   } catch (error) {
-    toast.error(error.message);
-    throw new Error(error.response.data.error);
+    toast.error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
+    throw new Error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
   }
 };
 
@@ -110,7 +126,16 @@ const getAssetsByOwner = async ({ umi, address, page }) => {
 
     return { maxPage, assets: assetsWithImage };
   } catch (error) {
-    throw new Error(error.response.data.error);
+    toast.error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
+    throw new Error(
+      error.response?.data?.error ||
+        error.message ||
+        "An unknown error occurred",
+    );
   }
 };
 
