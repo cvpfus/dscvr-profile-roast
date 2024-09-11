@@ -1,6 +1,4 @@
 import { ACTOR } from "../config/index.js";
-import { JSDOM } from "jsdom";
-import {HTML_TEMPLATE} from "../template/template.js";
 const getReadableDateFormat = (timestamp) => {
   let milliseconds = Number(timestamp / 1000000n);
   let date = new Date(milliseconds);
@@ -82,10 +80,3 @@ export const getRoastData = async (username) => {
 
   return JSON.stringify(roastData);
 };
-
-export const createHtml = (header, content) => {
-  const dom = new JSDOM(HTML_TEMPLATE);
-  const htmlHeader = dom.window.document.getElementById("header");
-  htmlHeader.innerHTML = header;
-  return dom;
-}
