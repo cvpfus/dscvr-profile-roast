@@ -62,7 +62,7 @@ const mintAsset = async (req, res) => {
 
       await browser.close();
     } catch (error) {
-      await browser.close();
+      if (browser) await browser.close();
       return res
         .status(500)
         .json({ error: error.message || "An unknown error occurred" });
