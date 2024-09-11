@@ -20,6 +20,7 @@ import { nanoid } from "nanoid";
 import puppeteer from "puppeteer";
 import { EMBED_FONT, HTML_TEMPLATE } from "../template/template.js";
 import * as htmlToImage from "html-to-image";
+import chromium from "chrome-aws-lambda";
 
 const mintAsset = async (req, res) => {
   try {
@@ -39,7 +40,7 @@ const mintAsset = async (req, res) => {
     let browser;
 
     try {
-      browser = await puppeteer.launch({
+      browser = await chromium.puppeteer.launch({
         args: [
           "--disable-web-security",
           "--disable-features=IsolateOrigins",
@@ -48,6 +49,9 @@ const mintAsset = async (req, res) => {
           "--disable-setuid-sandbox",
         ],
         ignoreDefaultArgs: ["--disable-extensions"],
+        headless: true,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
       });
       const page = await browser.newPage();
 
