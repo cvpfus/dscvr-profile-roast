@@ -8,7 +8,7 @@ export const CANISTER_ID = "h2bch-3yaaa-aaaab-qaama-cai";
 export const AGENT_HOST = "https://edge1-proxy.dscvr.cloud";
 export const REACTIONS = ["sad", "fire", "funny"];
 export const COLLECTION_ADDRESS =
-  "BjnBYifQPeksFJVTgBTaLaL5e7TYdFfPRWywv2GvkUiC";
+  "CZbjh8AmBk7BrwittznLHvv8BQD74AmGpmrTss2zg8Sp";
 export const GRAPHQL_API_URL = "https://api.dscvr.one/graphql";
 
 export const PROMPT = `
