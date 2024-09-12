@@ -145,7 +145,7 @@ export const Collection = () => {
                 return (
                   <Card
                     key={asset.publicKey}
-                    className="p-1 flex flex-col items-center justify-center"
+                    className="p-1 flex flex-col items-center justify-center mx-10"
                   >
                     {!asset.imageUri && (
                       <h3 className="text-md text-center text-xs">

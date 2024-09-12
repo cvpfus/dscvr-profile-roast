@@ -105,7 +105,7 @@ export const MyNFTs = () => {
               return (
                 <Card
                   key={asset.publicKey}
-                  className="p-1 flex flex-col items-center justify-center min-h-[200px]"
+                  className="p-1 flex flex-col items-center justify-center min-h-[200px] mx-10"
                 >
                   {!asset.burnt && (
                     <div>
