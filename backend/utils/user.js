@@ -57,7 +57,7 @@ export const validatedUserInfo = async (username) => {
   }
 
   if (userWallets.length === 0)
-    throw new Error("User has not paired the wallet");
+    throw new Error("The connected wallet is either not paired or the 'Allow Frames' setting is turned off");
 
   const userSolanaWallets = userWallets
     .filter((wallet) => wallet.walletChainType === "solana")
