@@ -11,23 +11,14 @@ export const HTML_TEMPLATE = `
   <div  class="bg-white">
     <div id="container" class="w-[450px] min-h-[225px] h-full border flex items-center bg-gradient-to-tr from-amber-400 to-red-600 rounded-2xl shadow-lg bg-black">
       <div class="p-4 flex flex-col items-center">
-        <div id="header" class="text-white rounded-xl px-2 pb-1 bg-gradient-to-r from-slate-700 to-black shadow-lg text-nowrap">
-          Lorem Ipsum Aa zzz
+        <div id="header" class="text-white rounded-xl px-4 pb-1 bg-gradient-to-r from-slate-700 to-black shadow-lg text-nowrap">
+          Header
         </div>
-        <div id="content" class="text-sm mt-2 text-justify bg-white/50 text-black rounded-xl p-4 shadow-lg font-normal">
-          Lorem ipsum odor amet, consectetuer adipiscing elit. Vitae praesent
-          penatibus imperdiet porttitor purus pretium mauris. Eros conubia
-          laoreet magnis ad convallis auctor mauris. Metus porta varius
-          facilisis pretium ultrices vivamus integer. Eleifend dui consequat
-          porta maximus ligula. Suscipit sed vulputate cubilia augue amet
-          commodo a phasellus. Elit odio gravida cubilia fusce, gravida vel
-          fusce eleifend. At sodales auctor velit sagittis nulla magnis
-          ridiculus in magnis? Dapibus adipiscing fermentum fusce pharetra;
-          magna magnaaaa. Dapibus adipiscing fermentum fusce pharetra; magna
-          magnaaaa. Dapibus adipiscing fermentum fusce pharetra; magna magnaaaa.
+        <div id="content" class="text-sm mt-4 mb-2 text-justify bg-white/50 text-black rounded-xl p-4 shadow-lg font-normal">
+          Content
         </div>
         <div class="text-white rounded-xl px-2 py-1 bg-gradient-to-r from-slate-700 to-black shadow-lg mt-2 font-bold text-xs text-nowrap">
-          🔥Lorem Ipsum🔥
+          🔥Roasted by AI🔥
         </div>
       </div>
     </div>

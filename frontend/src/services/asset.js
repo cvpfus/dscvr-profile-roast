@@ -6,12 +6,14 @@ import {
 } from "@metaplex-foundation/mpl-core";
 import toast from "react-hot-toast";
 import { COLLECTION_ADDRESS, LIMIT } from "@/constants/index.js";
+import { isEmpty } from "lodash-es";
 
 const BASE_URL = "https://omen.tail81c24b.ts.net/api/api/asset";
 
-const addAsset = async ({ userAddress }) => {
+const addAsset = async ({ userAddress, username }) => {
   const data = {
     userAddress,
+    username,
   };
 
   try {
@@ -35,6 +37,12 @@ const removeAsset = async ({ umi, asset }) => {
         publicKey: asset.updateAuthority.address,
       },
     }).sendAndConfirm(umi);
+
+    await axios.delete(`${BASE_URL}/deleteOffchainData`, {
+      data: {
+        publicKey: asset.publicKey,
+      },
+    });
     toast.success(`Asset burned 🔥`);
   } catch (error) {
     throw new Error(
@@ -53,6 +61,15 @@ const getAssets = async ({ umi, page }) => {
 
     const paginatedAssets = assets.slice(offset, offset + LIMIT);
 
+    paginatedAssets.sort((a, b) => {
+      if (a.appDatas && b.appDatas) {
+        const aLength = Object.values(b.appDatas[0].data ?? {}).length ?? 0;
+        const bLength = Object.values(a.appDatas[0].data ?? {}).length ?? 0;
+        return aLength - bLength;
+      }
+      return true;
+    });
+
     const totalAssets = assets.length;
     const maxPage = Math.ceil(totalAssets / LIMIT);
 
@@ -65,10 +82,10 @@ const getAssets = async ({ umi, page }) => {
             imageUri: response.data.image,
           };
         } catch (error) {
-          toast.error(error.message);
           console.error(error.message);
           return {
-            asset,
+            ...asset,
+            imageUri: "",
           };
         }
       }),
@@ -78,7 +95,10 @@ const getAssets = async ({ umi, page }) => {
       maxPage,
       assets: assetsWithImage.map((asset) => ({
         ...asset,
-        appDatas: asset.appDatas[0].data ? asset.appDatas[0].data : {},
+        appDatas:
+          asset.appDatas && asset.appDatas[0].data
+            ? asset.appDatas[0].data
+            : {},
       })),
     };
   } catch (error) {

@@ -5,12 +5,12 @@ import { AGENT_HOST, CANISTER_ID, DEVNET_RPC } from "../constants/index.js";
 import {
   createSignerFromKeypair,
   signerIdentity,
-  transactionBuilder
 } from "@metaplex-foundation/umi";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory } from "../constants/did.js";
 import { S3Client } from "@aws-sdk/client-s3";
 import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import Groq from "groq-sdk";
 
 const canisterId = CANISTER_ID;
 const agent = HttpAgent.createSync({
@@ -22,8 +22,6 @@ export const ACTOR = Actor.createActor(idlFactory, { agent, canisterId });
 
 export const PRIVATE_KEY = process.env.PRIVATE_KEY;
 export const SECRET_KEY = bs58.decode(PRIVATE_KEY);
-
-export const txBuilder = transactionBuilder();
 
 const umi0 = createUmi(DEVNET_RPC);
 const keypair = umi0.eddsa.createKeypairFromSecretKey(SECRET_KEY);
@@ -44,6 +42,8 @@ export const S3 = new S3Client({
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
 });
+
+export const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export const PASSWORD = process.env.PASSWORD;
 export const UMI0 = umi0;

@@ -2,6 +2,6 @@ import express from "express";
 import llmController from "../controllers/llmController.js";
 const router = express.Router();
 
-router.route("/").post(llmController.generateRoast);
+router.route("/").post(llmController.getRoast);
 
 export default router;

@@ -23,10 +23,7 @@ import { Explorer } from "@/components/Explorer.jsx";
 export const Collection = () => {
   const { publicKey, signMessage } = useWallet();
 
-  const { client } = useCanvasClient();
-
   const [visiblePages, setVisiblePages] = useState([]);
-  const [isImgLoading, setIsImgLoading] = useState(true);
 
   const getAssetsQuery = useGetAssetsQuery();
 
@@ -125,15 +122,6 @@ export const Collection = () => {
     }
   };
 
-  const handleImgLoad = () => {
-    setIsImgLoading(false);
-  };
-
-  const handleImgError = () => {
-    setIsImgLoading(false);
-    toast.error("Error loading image");
-  };
-
   return (
     <div>
       {address && (
@@ -149,11 +137,12 @@ export const Collection = () => {
         <div className="text-center">Collection is currently empty.</div>
       )}
 
-      {address && getAssetsQuery.isLoading && (
-        <div className="flex justify-center">
-          <Loader2 className="animate-spin" />
-        </div>
-      )}
+      {address &&
+        (getAssetsQuery.isLoading || getAssetsQuery.isPlaceholderData) && (
+          <div className="flex justify-center">
+            <Loader2 className="animate-spin" />
+          </div>
+        )}
 
       {address && assetsQueryData && (
         <>
@@ -165,57 +154,51 @@ export const Collection = () => {
                     key={asset.publicKey}
                     className="w-[360px] p-1 flex flex-col items-center"
                   >
-                    {isImgLoading && (
-                      <div className="flex justify-center items-center">
-                        <Loader2 className="animate-spin" />
-                      </div>
+                    {!asset.imageUri && (
+                      <h3 className="text-md">Image not available</h3>
                     )}
-                    <img
-                      src={asset.imageUri}
-                      alt={asset.name}
-                      className={`${isImgLoading ? "opacity-0" : ""}`}
-                      onLoad={handleImgLoad}
-                      onError={handleImgError}
-                    />
+                    <img src={asset.imageUri} alt={asset.name} />
                     <Explorer publicKey={asset.publicKey} />
-                    <ToggleGroup
-                      variant="outline"
-                      type="single"
-                      className="flex gap-2"
-                      value={selectedReaction[asset.publicKey]}
-                      onValueChange={(value) => handleReaction(asset, value)}
-                    >
-                      <ToggleGroupItem value="sad">
-                        <span className="mr-1">😭</span>
-                        <span>
-                          {
-                            Object.values(asset.appDatas).filter(
-                              (reaction) => reaction === "sad",
-                            ).length
-                          }
-                        </span>
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="fire">
-                        <span className="mr-1">🔥</span>
-                        <span>
-                          {
-                            Object.values(asset.appDatas).filter(
-                              (reaction) => reaction === "fire",
-                            ).length
-                          }
-                        </span>
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="funny">
-                        <span className="mr-1">🤣</span>
-                        <span>
-                          {
-                            Object.values(asset.appDatas).filter(
-                              (reaction) => reaction === "funny",
-                            ).length
-                          }
-                        </span>
-                      </ToggleGroupItem>
-                    </ToggleGroup>
+                    {asset.appDatas && (
+                      <ToggleGroup
+                        variant="outline"
+                        type="single"
+                        className="flex gap-2"
+                        value={selectedReaction[asset.publicKey]}
+                        onValueChange={(value) => handleReaction(asset, value)}
+                      >
+                        <ToggleGroupItem value="sad">
+                          <span className="mr-1">😭</span>
+                          <span>
+                            {
+                              Object.values(asset.appDatas).filter(
+                                (reaction) => reaction === "sad",
+                              ).length
+                            }
+                          </span>
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="fire">
+                          <span className="mr-1">🔥</span>
+                          <span>
+                            {
+                              Object.values(asset.appDatas).filter(
+                                (reaction) => reaction === "fire",
+                              ).length
+                            }
+                          </span>
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="funny">
+                          <span className="mr-1">🤣</span>
+                          <span>
+                            {
+                              Object.values(asset.appDatas).filter(
+                                (reaction) => reaction === "funny",
+                              ).length
+                            }
+                          </span>
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    )}
                   </Card>
                 );
               })}

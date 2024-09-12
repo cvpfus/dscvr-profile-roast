@@ -3,7 +3,7 @@ import { useAddAssetMutation } from "@/hooks/useAddAssetMutation.js";
 import { useCanvasClient } from "@/hooks/useCanvasClient.js";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Share2 } from "lucide-react";
 import { Explorer } from "@/components/Explorer.jsx";
 import { EXAMPLE_IMG_URL } from "@/constants/index.js";
 import { Skeleton } from "@/components/ui/skeleton.jsx";
@@ -12,7 +12,7 @@ import { useState } from "react";
 export const Generator = () => {
   const { publicKey } = useWallet();
 
-  const { user } = useCanvasClient();
+  const { user, client } = useCanvasClient();
 
   const { mutate, isPending, data, isSuccess } = useAddAssetMutation();
 
@@ -37,6 +37,18 @@ export const Generator = () => {
     }
   };
 
+  const handleShare = async (image) => {
+    const html = `
+    <p>Yooo.. My profile just got roasted by AI 😆</p>
+    <p>Here's the result:</p>
+    <img src=${image} alt=""/>
+    <p>Now it's your turn. Try it here and mint the NFT!</p>
+    <embedded-canvas url="https://roast-ui.cvpfus.xyz"></embedded-canvas>
+    `;
+
+    await client.createPost(html);
+  };
+
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-xl">Let AI roast your DSCVR profile! 🔥</h2>
@@ -46,7 +58,7 @@ export const Generator = () => {
         Generate & Mint NFT
       </Button>
 
-      <h5 className="text-xs mt-1">(Rate limited to 5 mints every 2 hours)</h5>
+      <h5 className="text-xs mt-1">(Rate limited to 5 mints every 6 hours)</h5>
 
       {!data && !isPending && (
         <div className="flex flex-col justify-center items-center">
@@ -76,9 +88,12 @@ export const Generator = () => {
             onLoad={() => setImgLoading(false)}
           />
           <Explorer publicKey={data.data.message.publicKey} />
+          <Button onClick={() => handleShare(data.data.message.imageUri)} className="my-2">
+            <Share2 className="h-4 w-4" />
+            <span className="ml-2">Share</span>
+          </Button>
           <h4 className=" text-sm text-center italic my-2">
-            Note: This is a deliberately harsh and snarky roasting, and is not
-            intended to be a constructive or meaningful criticism. It's just for
+            Note: This AI roasting is not intended to be a constructive or meaningful criticism. It's just for
             fun!
           </h4>
         </div>

@@ -14,11 +14,11 @@ export const useRemoveAssetMutation = () => {
 
   const removeAssetMutation = useMutation({
     mutationFn: assetService.removeAsset,
-    onMutate: ({asset}) => {
+    onMutate: ({ asset }) => {
       setIsBurning(asset.publicKey);
     },
     onSettled: () => {
-      setIsBurning("")
+      setIsBurning("");
     },
     onSuccess: async (_, { asset, page, getAssetsByOwnerQuery }) => {
       setIsBurning("");
@@ -26,7 +26,7 @@ export const useRemoveAssetMutation = () => {
         return {
           maxPage: old.maxPage,
           assets: old.assets.map((a) => {
-            if (a.publicKey.toLowerCase() === asset.publicKey.toLowerCase())
+            if (a.publicKey && a.publicKey.toLowerCase() === asset.publicKey.toLowerCase())
               return {
                 ...a,
                 burnt: true,

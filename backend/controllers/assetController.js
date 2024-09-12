@@ -1,25 +1,33 @@
-import { generateSigner, publicKey } from "@metaplex-foundation/umi";
+import {
+  generateSigner,
+  publicKey,
+  transactionBuilder,
+} from "@metaplex-foundation/umi";
 import {
   create,
+  update,
+  updateV1,
   ExternalPluginAdapterSchema,
+  transfer,
+  transferV1,
+  updateV2,
+  fetchAsset,
+  fetchCollection,
 } from "@metaplex-foundation/mpl-core";
 
-import { S3, txBuilder, UMI0 } from "../config/index.js";
-import {
-  COLLECTION_ADDRESS,
-  TEST_ADDRESS,
-  TEST_ADDRESS_2,
-} from "../constants/index.js";
+import { S3, UMI0 } from "../config/index.js";
+import { COLLECTION_ADDRESS, TEST_ADDRESS } from "../constants/index.js";
 import {
   getAllAssets,
   getAllAssetsByOwner,
   decodeSvg,
 } from "../utils/asset.js";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { nanoid } from "nanoid";
+import { PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import puppeteer from "puppeteer";
 import { EMBED_FONT, HTML_TEMPLATE } from "../template/template.js";
 import * as htmlToImage from "html-to-image";
+import { generateRoast } from "../utils/roast.js";
+import { getUmi } from "../utils/umi.js";
 
 const mintAsset = async (req, res) => {
   try {
@@ -29,6 +37,7 @@ const mintAsset = async (req, res) => {
     const missingFields = [];
 
     if (!body.userAddress) missingFields.push("userAddress");
+    if (!body.username) missingFields.push("username");
 
     if (missingFields.length > 0)
       return res
@@ -37,8 +46,14 @@ const mintAsset = async (req, res) => {
 
     let dataUrl;
     let browser;
+    let roast;
 
     try {
+      roast = await generateRoast(body.username);
+
+      if (!roast)
+        return res.status(500).json({ error: "Failed to generate roast" });
+
       browser = await puppeteer.launch({
         args: [
           "--disable-web-security",
@@ -55,10 +70,21 @@ const mintAsset = async (req, res) => {
 
       await page.addStyleTag({ path: "./template/output.css" });
 
-      dataUrl = await page.evaluate(async (EMBED_FONT) => {
-        const node = document.getElementById("container");
-        return await htmlToImage.toSvg(node);
-      }, EMBED_FONT);
+      dataUrl = await page.evaluate(
+        async (EMBED_FONT, username, roast) => {
+          const header = document.getElementById("header");
+          const content = document.getElementById("content");
+          header.innerHTML = `${username} on DSCVR`;
+          content.innerHTML = roast;
+          const node = document.getElementById("container");
+          return await htmlToImage.toSvg(node, {
+            fontEmbedCSS: EMBED_FONT,
+          });
+        },
+        EMBED_FONT,
+        body.username,
+        roast,
+      );
 
       await browser.close();
     } catch (error) {
@@ -70,46 +96,24 @@ const mintAsset = async (req, res) => {
 
     const owner = publicKey(body.userAddress);
 
-    const id = nanoid();
-
-    const imagePath = `image/${id}.svg`;
-    const jsonPath = `metadata/${id}.json`;
-
-    const imageParams = {
-      Bucket: process.env.R2_BUCKET_NAME,
-      Key: imagePath,
-      Body: decodeSvg(dataUrl),
-      ContentType: "image/svg+xml",
-    };
-
-    await S3.send(new PutObjectCommand(imageParams));
-
-    const jsonParams = {
-      Bucket: process.env.R2_BUCKET_NAME,
-      Key: jsonPath,
-      Body: JSON.stringify({
-        name: "Test",
-        description: "Description",
-        image: `https://storage.cvpfus.xyz/${imagePath}`,
-        external_url: "https://cvpfus.xyz",
-      }),
-      ContentType: "application/json",
-    };
-
-    // TODO: add attributes fields
-    await S3.send(new PutObjectCommand(jsonParams));
-
     const assetSigner = generateSigner(UMI0);
 
-    const transaction = await create(UMI0, {
+    const imagePath = `image/${assetSigner.publicKey}.svg`;
+    const jsonPath = `metadata/${assetSigner.publicKey}.json`;
+
+    await create(UMI0, {
       asset: assetSigner,
       collection: {
         publicKey: COLLECTION_ADDRESS,
       },
-      owner: publicKey(TEST_ADDRESS_2),
-      name: id,
+      owner: owner,
+      name: `${body.username} - RoastMeAI NFT`,
       uri: `https://storage.cvpfus.xyz/${jsonPath}`,
       plugins: [
+        {
+          type: "Attributes",
+          attributeList: [{ key: "roastResult", value: roast }],
+        },
         {
           type: "AppData",
           dataAuthority: {
@@ -119,15 +123,35 @@ const mintAsset = async (req, res) => {
           schema: ExternalPluginAdapterSchema.Json,
         },
       ],
-    }).buildAndSign(UMI0);
+    }).sendAndConfirm(UMI0);
 
-    const signature = await UMI0.rpc.sendTransaction(transaction);
-    await txBuilder.confirm(UMI0, signature);
+    const imageParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: imagePath,
+      Body: decodeSvg(dataUrl),
+      ContentType: "image/svg+xml",
+    };
+
+    const jsonParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: jsonPath,
+      Body: JSON.stringify({
+        name: `${body.username} - RoastMeAI NFT`,
+        description: `Roast result for a DSCVR profile`,
+        image: `https://storage.cvpfus.xyz/${imagePath}`,
+        external_url: "https://cvpfus.xyz",
+        attributes: [{ trait_type: "roastResult", value: roast }],
+      }),
+      ContentType: "application/json",
+    };
+
+    await S3.send(new PutObjectCommand(imageParams));
+    await S3.send(new PutObjectCommand(jsonParams));
 
     return res.json({
       message: {
         imageUri: `https://storage.cvpfus.xyz/${imagePath}`,
-        publicKey: transaction.message.accounts[1],
+        publicKey: assetSigner.publicKey,
       },
     });
   } catch (error) {
@@ -189,4 +213,41 @@ const getAssetsByOwner = async (req, res) => {
   }
 };
 
-export default { mintAsset, getAssets, getAssetsByOwner };
+export const deleteOffchainData = async (req, res) => {
+  const body = req.body;
+  if (!body.publicKey)
+    return res.status(400).json({ error: "publicKey not provided" });
+
+  const umi = getUmi();
+
+  try {
+    const asset = await umi.rpc.getAsset(publicKey(body.publicKey));
+
+    if (!asset.burnt)
+      return res.status(500).json({
+        error: "Failed to delete offchain data",
+      });
+
+    const deleteParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Delete: {
+        Objects: [
+          { Key: `metadata/${body.publicKey}.json` },
+          { Key: `image/${body.publicKey}.svg` },
+        ],
+        Quiet: false,
+      },
+    };
+
+    await S3.send(new DeleteObjectsCommand(deleteParams));
+
+    return res.json({ message: "Offchain data has been successfully deleted" });
+  } catch (error) {
+    console.log("error", error.message);
+    return res
+      .status(500)
+      .json({ error: error.message || "An unknown error occurred" });
+  }
+};
+
+export default { mintAsset, getAssets, getAssetsByOwner, deleteOffchainData };

@@ -25,8 +25,6 @@ export const WalletProvider = ({ children }) => {
             throw new Error("Failed to connect wallet");
         }
 
-        console.log("public key:", wallet.publicKey.toString())
-
         setAddress(wallet.publicKey.toString());
 
         // if (!response?.untrusted.success) {

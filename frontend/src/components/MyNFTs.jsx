@@ -17,12 +17,12 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Card } from "@/components/ui/card.jsx";
 import { Explorer } from "@/components/Explorer.jsx";
 import { useCanvasClient } from "@/hooks/useCanvasClient.js";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const MyNFTs = () => {
   const { umi } = useUmi();
 
   const [visiblePages, setVisiblePages] = useState([]);
-  const [isImgLoading, setIsImgLoading] = useState(true);
 
   const getAssetsByOwnerQuery = useGetAssetsByOwnerQuery();
 
@@ -48,6 +48,15 @@ export const MyNFTs = () => {
     : null;
 
   useEffect(() => {
+    if (isAssetsEmpty && page > 1) {
+      setPage((prev) => prev - 1);
+
+      const newVisiblePages = visiblePages.slice(0, visiblePages - 1);
+      setVisiblePages(newVisiblePages);
+    }
+  }, [isAssetsEmpty]);
+
+  useEffect(() => {
     if (assetsByOwnerData) {
       if (maxPage === 1) setVisiblePages([1]);
       else if (maxPage === 2) setVisiblePages([1, 2]);
@@ -59,8 +68,6 @@ export const MyNFTs = () => {
       }
     }
   }, [assetsByOwnerData]);
-
-  console.log(getAssetsByOwnerQuery.data);
 
   const handleBurn = async (asset) => {
     try {
@@ -77,30 +84,21 @@ export const MyNFTs = () => {
 
   const handleShare = async (asset) => {
     const html = `
-    <p>Test</p>
-    <div style="display: flex;">
-    <img src="https://storage.cvpfus.xyz/image/-U4ylGZt5w0cHaHds3fIe.svg" alt="test"/>
-    <embedded-canvas url="https://dscvr-practice.vercel.app/"></embedded-canvas>
-    </div>
-    
+    <p>Yooo.. My profile just got roasted by AI 😆</p>
+    <p>Here's the result:</p>
+    <img src=${asset.imageUri} alt=""/>
+    <p>Now it's your turn. Try it here and mint the NFT!</p>
+    <embedded-canvas url="https://roast-ui.cvpfus.xyz"></embedded-canvas>
     `;
 
     await client.createPost(html);
   };
 
-  const handleImgLoad = () => {
-    setIsImgLoading(false);
-  };
-
-  const handleImgError = () => {
-    setIsImgLoading(false);
-    toast.error("Error loading image");
-  };
-
   return (
     <div>
       {!address ? <div>Connect your wallet first.</div> : null}
-      {getAssetsByOwnerQuery.isLoading && (
+      {(getAssetsByOwnerQuery.isLoading ||
+        getAssetsByOwnerQuery.isPlaceholderData) && (
         <div className="flex justify-center">
           <Loader2 className="animate-spin" />
         </div>
@@ -119,18 +117,7 @@ export const MyNFTs = () => {
                 >
                   {!asset.burnt && (
                     <div>
-                      {isImgLoading && (
-                        <div className="flex justify-center">
-                          <Loader2 className="animate-spin" />
-                        </div>
-                      )}
-                      <img
-                        src={asset.imageUri}
-                        alt={asset.name}
-                        className={`${isImgLoading ? "opacity-0" : ""}`}
-                        onLoad={handleImgLoad}
-                        onError={handleImgError}
-                      />
+                      <img src={asset.imageUri} alt={asset.name} />
                       <Explorer publicKey={asset.publicKey} />
                       <div className="flex mt-2">
                         <Button

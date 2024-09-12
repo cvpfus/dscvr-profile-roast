@@ -8,7 +8,7 @@ export const useAddAssetMutation = () => {
     mutationFn: assetService.addAsset,
     retry: false,
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast.error(error.message || "Failed to add an asset");
     },
   });

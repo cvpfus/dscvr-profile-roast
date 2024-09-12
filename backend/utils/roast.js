@@ -1,4 +1,7 @@
 import { ACTOR } from "../config/index.js";
+import { PROMPT2 } from "../constants/index.js";
+import { akashGenerateContent, groqGenerateContent } from "./llm.js";
+
 const getReadableDateFormat = (timestamp) => {
   let milliseconds = Number(timestamp / 1000000n);
   let date = new Date(milliseconds);
@@ -6,11 +9,7 @@ const getReadableDateFormat = (timestamp) => {
   return date.toISOString(); // Or you can use other formatting methods
 };
 
-export const getRoastData = async (username) => {
-  BigInt.prototype["toJSON"] = function () {
-    return this.toString();
-  };
-
+export const generateRoast = async (username) => {
   const searchResult = await ACTOR.search_users({
     sort_by: [
       {
@@ -78,5 +77,29 @@ export const getRoastData = async (username) => {
     },
   };
 
-  return JSON.stringify(roastData);
+  const prompt = `
+  ${PROMPT2}
+  
+  ${JSON.stringify(roastData)}
+  `;
+
+  try {
+    const akashResult = await akashGenerateContent(prompt);
+
+    let groqResult;
+
+    if (akashResult instanceof Error) {
+      groqResult = await groqGenerateContent(prompt);
+    } else {
+      return akashResult;
+    }
+
+    if (groqResult instanceof Error) {
+      throw new Error(groqResult);
+    } else {
+      return groqResult;
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
 };
