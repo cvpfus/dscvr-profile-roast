@@ -66,7 +66,7 @@ export const Generator = () => {
         Generate & Mint NFT
       </Button>
 
-      <h5 className="text-xs mt-1">(Rate limited to 5 mints every 6 hours)</h5>
+      {/*<h5 className="text-xs mt-1">(Rate limited to 5 mints every 6 hours)</h5>*/}
 
       {!data && !isPending && (
         <div className="flex flex-col justify-center items-center">
