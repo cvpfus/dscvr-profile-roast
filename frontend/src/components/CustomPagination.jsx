@@ -29,11 +29,11 @@ export const CustomPagination = ({ page, maxPage, visiblePages, setPage }) => {
           <>
             <PaginationItem
               onClick={() => setPage(1)}
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer hidden xs:block"
             >
               <PaginationLink>1</PaginationLink>
             </PaginationItem>
-            <PaginationItem>
+            <PaginationItem className="hidden xs:block">
               <PaginationEllipsis />
             </PaginationItem>
           </>
@@ -53,12 +53,12 @@ export const CustomPagination = ({ page, maxPage, visiblePages, setPage }) => {
 
         {maxPage > 3 && page < maxPage - 1 && (
           <>
-            <PaginationItem>
+            <PaginationItem className="hidden xs:block">
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem
               onClick={() => setPage(maxPage)}
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer hidden xs:block"
               key={maxPage}
             >
               <PaginationLink>{maxPage}</PaginationLink>
