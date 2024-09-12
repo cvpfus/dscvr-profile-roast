@@ -5,10 +5,13 @@ import {
   fetchAssetsByOwner,
 } from "@metaplex-foundation/mpl-core";
 import toast from "react-hot-toast";
-import { COLLECTION_ADDRESS, LIMIT } from "@/constants/index.js";
-import { isEmpty } from "lodash-es";
+import {
+  BACKEND_BASE_URL,
+  COLLECTION_ADDRESS,
+  LIMIT,
+} from "@/constants/index.js";
 
-const BASE_URL = "https://omen.tail81c24b.ts.net/api/api/asset";
+const BASE_URL = `${BACKEND_BASE_URL}/api/asset`;
 
 const addAsset = async ({ userAddress, username }) => {
   const data = {

@@ -7,3 +7,4 @@ export const COLLECTION_ADDRESS =
 export const LIMIT = 4;
 export const EXAMPLE_IMG_URL =
   "https://storage.cvpfus.xyz/image/DyR_6WTN2WpmVHAIYNzFf.svg";
+export const BACKEND_BASE_URL = "https://roast-api.cvpfus.xyz";

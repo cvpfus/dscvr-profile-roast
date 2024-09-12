@@ -51,7 +51,7 @@ const mintAsset = async (req, res) => {
     try {
       roast = await generateRoast(body.username);
 
-      if (!roast)
+      if (!roast?.content)
         return res.status(500).json({ error: "Failed to generate roast" });
 
       browser = await puppeteer.launch({
@@ -83,7 +83,7 @@ const mintAsset = async (req, res) => {
         },
         EMBED_FONT,
         body.username,
-        roast,
+        roast.content,
       );
 
       await browser.close();
@@ -112,7 +112,10 @@ const mintAsset = async (req, res) => {
       plugins: [
         {
           type: "Attributes",
-          attributeList: [{ key: "roastResult", value: roast }],
+          attributeList: [
+            { key: "modelName", value: roast.modelName },
+            { key: "roastResult", value: roast.content },
+          ],
         },
         {
           type: "AppData",
@@ -140,7 +143,7 @@ const mintAsset = async (req, res) => {
         description: `Roast result for a DSCVR profile`,
         image: `https://storage.cvpfus.xyz/${imagePath}`,
         external_url: "https://cvpfus.xyz",
-        attributes: [{ trait_type: "roastResult", value: roast }],
+        attributes: [{ trait_type: "roastResult", value: roast.content }],
       }),
       ContentType: "application/json",
     };

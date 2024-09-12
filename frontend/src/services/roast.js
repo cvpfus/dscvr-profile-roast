@@ -1,6 +1,7 @@
 import axios from "axios";
+import { BACKEND_BASE_URL } from "@/constants/index.js";
 
-const BASE_URL = "https://omen.tail81c24b.ts.net/api/api/llm";
+const BASE_URL = `${BACKEND_BASE_URL}/api/llm`;
 
 const generateRoast = async (username) => {
   const data = {
