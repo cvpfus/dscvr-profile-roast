@@ -17,7 +17,7 @@ export const decodeSvg = (dataString) => {
 
 export const apiRateLimiter = rateLimit({
   windowMs: 6 * 60 * 60 * 1000,
-  max: 1,
+  max: 5,
   message: JSON.stringify({
     error: "You have exceeded the 5 mints in 6 hours limit",
   }),
