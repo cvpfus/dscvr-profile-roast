@@ -1,8 +1,9 @@
 import { generateSigner } from "@metaplex-foundation/umi";
 import { createCollection } from "@metaplex-foundation/mpl-core";
 
-import { PASSWORD, UMI0 } from "../config/index.js";
+import { PASSWORD, S3, UMI0 } from "../config/index.js";
 import { getAllCollections } from "../utils/collection.js";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 const addCollection = async (req, res) => {
   try {
@@ -12,13 +13,30 @@ const addCollection = async (req, res) => {
       return res.status(401).json({ error: "wrong password" });
 
     const collectionSigner = generateSigner(UMI0);
+
+    const jsonPath = `metadata/${collectionSigner.publicKey}.json`;
+
     await createCollection(UMI0, {
       collection: collectionSigner,
-      name: "My Collection",
-      uri: "https://example.com/my-collection.json",
+      name: "RoastMeAI NFT Collection",
+      uri: `https://storage.cvpfus.xyz/${jsonPath}`,
     }).sendAndConfirm(UMI0);
 
-    res.json({ message: "collection created" });
+    const jsonParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: jsonPath,
+      Body: JSON.stringify({
+        name: `RoastMeAI NFT Collection`,
+        description: `A collection of RoastMeAI NFT`,
+        image: "https://storage.cvpfus.xyz/RoastMeAI.png",
+        external_url: "https://cvpfus.xyz",
+      }),
+      ContentType: "application/json",
+    };
+
+    await S3.send(new PutObjectCommand(jsonParams));
+
+    res.json({ message: "Collection created" });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
