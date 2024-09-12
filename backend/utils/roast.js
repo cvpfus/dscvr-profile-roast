@@ -89,12 +89,14 @@ export const generateRoast = async (username) => {
     let groqResult;
 
     if (akashResult instanceof Error) {
+      console.log(akashResult);
       groqResult = await groqGenerateContent(prompt);
     } else {
       return akashResult;
     }
 
     if (groqResult instanceof Error) {
+      console.log(groqResult);
       throw new Error(groqResult);
     } else {
       return groqResult;
