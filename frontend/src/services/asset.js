@@ -13,10 +13,11 @@ import {
 
 const BASE_URL = `${BACKEND_BASE_URL}/api/asset`;
 
-const addAsset = async ({ userAddress, username }) => {
+const addAsset = async ({ userAddress, username, signature }) => {
   const data = {
     userAddress,
     username,
+    signature,
   };
 
   try {
@@ -62,9 +63,7 @@ const getAssets = async ({ umi, page }) => {
   try {
     const assets = await fetchAssetsByCollection(umi, COLLECTION_ADDRESS);
 
-    const paginatedAssets = assets.slice(offset, offset + LIMIT);
-
-    paginatedAssets.sort((a, b) => {
+    assets.sort((a, b) => {
       if (a.appDatas && b.appDatas) {
         const aLength = Object.values(b.appDatas[0].data ?? {}).length ?? 0;
         const bLength = Object.values(a.appDatas[0].data ?? {}).length ?? 0;
@@ -72,6 +71,8 @@ const getAssets = async ({ umi, page }) => {
       }
       return true;
     });
+
+    const paginatedAssets = assets.slice(offset, offset + LIMIT);
 
     const totalAssets = assets.length;
     const maxPage = Math.ceil(totalAssets / LIMIT);
@@ -122,7 +123,9 @@ const getAssetsByOwner = async ({ umi, address, page }) => {
   const offset = (page - 1) * LIMIT;
 
   try {
-    const assets = await fetchAssetsByOwner(umi, address);
+    const assets = (
+      await fetchAssetsByCollection(umi, COLLECTION_ADDRESS)
+    ).filter((asset) => asset.owner === address);
 
     const paginatedAssets = assets.slice(offset, offset + LIMIT);
 
@@ -141,7 +144,8 @@ const getAssetsByOwner = async ({ umi, address, page }) => {
           toast.error(error.message);
           console.error(error.message);
           return {
-            asset,
+            ...asset,
+            imageUri: "",
           };
         }
       }),

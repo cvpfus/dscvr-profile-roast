@@ -8,9 +8,10 @@ import { Explorer } from "@/components/Explorer.jsx";
 import { EXAMPLE_IMG_URL } from "@/constants/index.js";
 import { Skeleton } from "@/components/ui/skeleton.jsx";
 import { useState } from "react";
+import { utf8 } from "@metaplex-foundation/umi/serializers";
 
 export const Generator = () => {
-  const { publicKey } = useWallet();
+  const { publicKey, signMessage } = useWallet();
 
   const { user, client } = useCanvasClient();
 
@@ -27,9 +28,14 @@ export const Generator = () => {
     }
 
     try {
+      const signature = Array.from(
+        await signMessage(utf8.serialize(user.username)),
+      );
+
       await mutate({
         userAddress: address,
         username: user.username,
+        signature,
       });
     } catch (error) {
       toast.error(error.message);
@@ -51,7 +57,9 @@ export const Generator = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-xl">Let AI roast your DSCVR profile! 🔥</h2>
+      <h2 className="text-xl text-center">
+        Let AI roast your DSCVR profile! 🔥
+      </h2>
 
       <Button onClick={handleMintNFT} className="mt-2" disabled={isPending}>
         {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -68,14 +76,14 @@ export const Generator = () => {
       )}
 
       {!data && isPending && (
-        <>
+        <div className="w-screen flex flex-col justify-center items-center px-4">
           <Skeleton className="w-24 h-5 mt-4" />
-          <div className="rounded-2xl shadow border p-4 flex flex-col items-center mt-3">
+          <div className="rounded-2xl shadow border p-4 flex flex-col items-center mt-3 w-full xs:w-[410px]">
             <Skeleton className="w-36 h-5" />
-            <Skeleton className="w-[410px] h-[270px] mt-4" />
+            <Skeleton className="w-full h-[270px] mt-4" />
             <Skeleton className="w-28 h-5 mt-4" />
           </div>
-        </>
+        </div>
       )}
 
       {isSuccess && (
@@ -88,13 +96,16 @@ export const Generator = () => {
             onLoad={() => setImgLoading(false)}
           />
           <Explorer publicKey={data.data.message.publicKey} />
-          <Button onClick={() => handleShare(data.data.message.imageUri)} className="my-2">
+          <Button
+            onClick={() => handleShare(data.data.message.imageUri)}
+            className="my-2"
+          >
             <Share2 className="h-4 w-4" />
             <span className="ml-2">Share</span>
           </Button>
           <h4 className=" text-sm text-center italic my-2">
-            Note: This AI roasting is not intended to be a constructive or meaningful criticism. It's just for
-            fun!
+            Note: This AI roasting is not intended to be a constructive or
+            meaningful criticism. It's just for fun!
           </h4>
         </div>
       )}

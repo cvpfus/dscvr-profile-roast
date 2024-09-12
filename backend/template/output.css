@@ -1,6 +1,6 @@
-/*
-! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com
-*/
+/*@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@100..900&display=swap');*/
+
+/*! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com*/
 
 /*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
@@ -592,9 +592,8 @@ html {
   }
 }
 
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
 .mt-2 {
@@ -605,12 +604,12 @@ html {
   margin-top: 1rem;
 }
 
-.mb-2 {
-  margin-bottom: 0.5rem;
-}
-
 .flex {
   display: flex;
+}
+
+.h-9 {
+  height: 2.25rem;
 }
 
 .h-full {
@@ -619,6 +618,10 @@ html {
 
 .min-h-\[225px\] {
   min-height: 225px;
+}
+
+.w-9 {
+  width: 2.25rem;
 }
 
 .w-\[450px\] {
@@ -633,6 +636,14 @@ html {
   align-items: center;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
 .text-nowrap {
   text-wrap: nowrap;
 }
@@ -641,12 +652,29 @@ html {
   border-radius: 1rem;
 }
 
+.rounded-3xl {
+  border-radius: 1.5rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
 .rounded-xl {
   border-radius: 0.75rem;
 }
 
 .border {
   border-width: 1px;
+}
+
+.border-4 {
+  border-width: 4px;
+}
+
+.border-slate-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(30 41 59 / var(--tw-border-opacity));
 }
 
 .bg-black {
@@ -700,18 +728,13 @@ html {
   padding-right: 0.5rem;
 }
 
-.px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
-.pb-1 {
-  padding-bottom: 0.25rem;
+.pr-3 {
+  padding-right: 0.75rem;
 }
 
 .text-justify {
@@ -734,6 +757,11 @@ html {
 
 .font-normal {
   font-weight: 400;
+}
+
+.text-amber-400 {
+  --tw-text-opacity: 1;
+  color: rgb(251 191 36 / var(--tw-text-opacity));
 }
 
 .text-black {

@@ -9,6 +9,7 @@ export const AGENT_HOST = "https://edge1-proxy.dscvr.cloud";
 export const REACTIONS = ["sad", "fire", "funny"];
 export const COLLECTION_ADDRESS =
   "BjnBYifQPeksFJVTgBTaLaL5e7TYdFfPRWywv2GvkUiC";
+export const GRAPHQL_API_URL = "https://api.dscvr.one/graphql";
 
 export const PROMPT = `
 Give a short and harsh roasting for a profile of web3 social media app called DSCVR. Only give harsh roasting for a DSCVR profile. Don't give harsh comments on DSCVR platform.
@@ -40,7 +41,7 @@ The data will be provided and each fields are explained below.
 export const PROMPT2 = `
 Give a roasting comment for a DSCVR user. Only give roasting for a DSCVR profile. Remember, don't give roasting comments on DSCVR platform.
 
-Keep it one paragraph. Include some emojis if it fits. Remember, just reply with your roasting comment. Don't start with something like "Here's a roasting for the DSCVR profile of XXX", just straight your roasting comment.
+Keep it one paragraph, and don't exceed 100 words. Include some emojis if it fits. Remember, just reply with your roasting comment. Don't start with something like "Here's a roasting for the DSCVR profile of XXX", just straight your roasting comment.
 
 The data will be provided and each fields are explained below.
 {
@@ -124,4 +125,4 @@ The data will be provided and each fields are explained below.
 }
 
 Here's the data:
-`
+`;

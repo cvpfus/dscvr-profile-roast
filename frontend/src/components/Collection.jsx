@@ -6,14 +6,7 @@ import { useCanvasClient } from "@/hooks/useCanvasClient.js";
 import { useAddReactionMutation } from "@/hooks/useAddReactionMutation.js";
 import { useRemoveReactionMutation } from "@/hooks/useRemoveReactionMutation.js";
 import toast from "react-hot-toast";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination.jsx";
+import { CustomPagination } from "@/components/CustomPagination.jsx";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { utf8 } from "@metaplex-foundation/umi/serializers";
 import { Card } from "@/components/ui/card.jsx";
@@ -146,18 +139,30 @@ export const Collection = () => {
 
       {address && assetsQueryData && (
         <>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {selectedReaction &&
               assetsQueryData.map((asset) => {
                 return (
                   <Card
                     key={asset.publicKey}
-                    className="w-[360px] p-1 flex flex-col items-center"
+                    className="p-1 flex flex-col items-center justify-center"
                   >
                     {!asset.imageUri && (
-                      <h3 className="text-md">Image not available</h3>
+                      <h3 className="text-md text-center text-xs">
+                        [Image not available]
+                      </h3>
                     )}
-                    <img src={asset.imageUri} alt={asset.name} />
+                    <img
+                      src={asset.imageUri}
+                      alt={
+                        asset.attributes
+                          ? asset.attributes.attributeList.filter(
+                              (attribute) => attribute.key === "roastResult",
+                            )[0].value
+                          : asset.name
+                      }
+                      className={`text-center ${!asset.imageUri ? "my-4 text-xs" : ""}`}
+                    />
                     <Explorer publicKey={asset.publicKey} />
                     {asset.appDatas && (
                       <ToggleGroup
@@ -203,46 +208,12 @@ export const Collection = () => {
                 );
               })}
           </div>
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem
-                onClick={() => {
-                  if (page > 1) setPage(page - 1);
-                }}
-                className={
-                  page === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:cursor-pointer"
-                }
-              >
-                <PaginationPrevious />
-              </PaginationItem>
-              {visiblePages.map((p) => {
-                return (
-                  <PaginationItem
-                    onClick={() => setPage(p)}
-                    className="hover:cursor-pointer"
-                    key={p}
-                  >
-                    <PaginationLink isActive={page === p}>{p}</PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem
-                onClick={() => {
-                  if (page < maxPage) setPage(page + 1);
-                }}
-                className={
-                  page === maxPage
-                    ? "pointer-events-none opacity-50"
-                    : "hover:cursor-pointer"
-                }
-              >
-                <PaginationNext />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <CustomPagination
+            page={page}
+            maxPage={maxPage}
+            visiblePages={visiblePages}
+            setPage={setPage}
+          />
         </>
       )}
     </div>

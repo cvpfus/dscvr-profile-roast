@@ -7,7 +7,7 @@ import {
 } from "../constants/index.js";
 import { UMI0 } from "../config/index.js";
 import { fetchAsset, writeData } from "@metaplex-foundation/mpl-core";
-
+import { validatedUserInfo } from "../utils/user.js";
 // TODO: refactor code duplication
 
 const addReaction = async (req, res) => {
@@ -27,9 +27,17 @@ const addReaction = async (req, res) => {
       .json({ error: `${missingFields.join(", ")} not provided` });
 
   if (!REACTIONS.includes(body.reaction.toLowerCase()))
-    return res.status(400).json({ error: "invalid reaction" });
+    return res.status(400).json({ error: "Invalid reaction" });
 
   try {
+    const userInfo = await validatedUserInfo(body.username);
+
+    if (!userInfo.wallets.includes(body.userAddress.toLowerCase()))
+      return res.status(400).json({
+        error:
+          "The connected wallet is either not paired or the 'Allow Frames' setting is turned off",
+      });
+
     const userPublicKey = publicKey(body.userAddress);
     const assetPublicKey = publicKey(body.assetAddress);
 
@@ -42,7 +50,7 @@ const addReaction = async (req, res) => {
     );
 
     if (!isSignatureCorrect)
-      return res.status(401).json({ error: "signature is incorrect" });
+      return res.status(401).json({ error: "Signature is incorrect" });
 
     const asset = await fetchAsset(UMI0, body.assetAddress);
 
@@ -74,7 +82,7 @@ const addReaction = async (req, res) => {
       asset: assetPublicKey,
     }).sendAndConfirm(UMI0);
 
-    return res.json({ message: "data written to an asset." });
+    return res.json({ message: "Data written to an asset" });
   } catch (error) {
     return res
       .status(400)
@@ -99,7 +107,7 @@ const removeReaction = async (req, res) => {
       .json({ error: `${missingFields.join(", ")} not provided` });
 
   if (!REACTIONS.includes(body.reaction.toLowerCase()))
-    return res.status(400).json({ error: "invalid reaction" });
+    return res.status(400).json({ error: "Invalid reaction" });
 
   try {
     const userPublicKey = publicKey(body.userAddress);
@@ -145,7 +153,7 @@ const removeReaction = async (req, res) => {
       asset: assetPublicKey,
     }).sendAndConfirm(UMI0);
 
-    return res.json({ message: "data deleted." });
+    return res.json({ message: "Data deleted" });
   } catch (error) {
     return res
       .status(400)

@@ -5,19 +5,11 @@ import { useUmi } from "@/hooks/useUmi.js";
 import { useRemoveAssetMutation } from "@/hooks/useRemoveAssetMutation.js";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination.jsx";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Card } from "@/components/ui/card.jsx";
 import { Explorer } from "@/components/Explorer.jsx";
 import { useCanvasClient } from "@/hooks/useCanvasClient.js";
-import { useQueryClient } from "@tanstack/react-query";
+import { CustomPagination } from "@/components/CustomPagination.jsx";
 
 export const MyNFTs = () => {
   const { umi } = useUmi();
@@ -108,16 +100,31 @@ export const MyNFTs = () => {
 
       {address && assetsByOwnerData && (
         <>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             {assetsByOwnerData.map((asset) => {
               return (
                 <Card
                   key={asset.publicKey}
-                  className="w-[360px] p-1 flex flex-col items-center justify-center min-h-[200px]"
+                  className="p-1 flex flex-col items-center justify-center min-h-[200px]"
                 >
                   {!asset.burnt && (
                     <div>
-                      <img src={asset.imageUri} alt={asset.name} />
+                      {!asset.imageUri && (
+                        <h3 className="text-md text-center text-xs">
+                          [Image not available]
+                        </h3>
+                      )}
+                      <img
+                        src={asset.imageUri}
+                        alt={
+                          asset.attributes
+                            ? asset.attributes.attributeList.filter(
+                                (attribute) => attribute.key === "roastResult",
+                              )[0].value
+                            : asset.name
+                        }
+                        className={`text-center ${!asset.imageUri ? "my-4 text-xs" : ""}`}
+                      />
                       <Explorer publicKey={asset.publicKey} />
                       <div className="flex mt-2">
                         <Button
@@ -149,46 +156,12 @@ export const MyNFTs = () => {
               );
             })}
           </div>
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem
-                onClick={() => {
-                  if (page > 1) setPage(page - 1);
-                }}
-                className={
-                  page === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:cursor-pointer"
-                }
-              >
-                <PaginationPrevious />
-              </PaginationItem>
-              {visiblePages.map((p) => {
-                return (
-                  <PaginationItem
-                    onClick={() => setPage(p)}
-                    className="hover:cursor-pointer"
-                    key={p}
-                  >
-                    <PaginationLink isActive={page === p}>{p}</PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem
-                onClick={() => {
-                  if (page < maxPage) setPage(page + 1);
-                }}
-                className={
-                  page === maxPage
-                    ? "pointer-events-none opacity-50"
-                    : "hover:cursor-pointer"
-                }
-              >
-                <PaginationNext />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <CustomPagination
+            page={page}
+            maxPage={maxPage}
+            visiblePages={visiblePages}
+            setPage={setPage}
+          />
         </>
       )}
     </div>

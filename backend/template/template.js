@@ -11,7 +11,7 @@ export const HTML_TEMPLATE = `
   <div  class="bg-white">
     <div id="container" class="w-[450px] min-h-[225px] h-full border flex items-center bg-gradient-to-tr from-amber-400 to-red-600 rounded-2xl shadow-lg bg-black">
       <div class="p-4 flex flex-col items-center">
-        <div id="header" class="text-white rounded-xl px-4 pb-1 bg-gradient-to-r from-slate-700 to-black shadow-lg text-nowrap">
+        <div id="header" class="flex items-center gap-2 pr-3 border-4 border-slate-800 rounded-3xl bg-gradient-to-r from-slate-700 to-black shadow-lg text-nowrap">
           Header
         </div>
         <div id="content" class="text-sm mt-4 mb-2 text-justify bg-white/50 text-black rounded-xl p-4 shadow-lg font-normal">

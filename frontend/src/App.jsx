@@ -65,7 +65,7 @@ const App = () => {
 
   return (
     <div className="m-4">
-      <Toaster position="top-right" />
+      <Toaster position="top-left" />
       <div className="flex justify-end items-center gap-2 mb-4">
         {address && (
           <div>{`${address.substring(0, 4)}...${address.substring(address.length - 4)}`}</div>

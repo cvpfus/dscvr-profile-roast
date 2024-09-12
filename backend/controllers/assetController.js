@@ -1,18 +1,7 @@
-import {
-  generateSigner,
-  publicKey,
-  transactionBuilder,
-} from "@metaplex-foundation/umi";
+import { generateSigner, publicKey } from "@metaplex-foundation/umi";
 import {
   create,
-  update,
-  updateV1,
   ExternalPluginAdapterSchema,
-  transfer,
-  transferV1,
-  updateV2,
-  fetchAsset,
-  fetchCollection,
 } from "@metaplex-foundation/mpl-core";
 
 import { S3, UMI0 } from "../config/index.js";
@@ -28,16 +17,21 @@ import { EMBED_FONT, HTML_TEMPLATE } from "../template/template.js";
 import * as htmlToImage from "html-to-image";
 import { generateRoast } from "../utils/roast.js";
 import { getUmi } from "../utils/umi.js";
+import {
+  formatFollowerCount,
+  getFirstTwoLetters,
+  validatedUserInfo,
+} from "../utils/user.js";
+import { utf8 } from "@metaplex-foundation/umi/serializers";
 
 const mintAsset = async (req, res) => {
   try {
     const body = req.body;
-    // TODO: add auth
-
     const missingFields = [];
 
     if (!body.userAddress) missingFields.push("userAddress");
     if (!body.username) missingFields.push("username");
+    if (!body.signature) missingFields.push("signature");
 
     if (missingFields.length > 0)
       return res
@@ -49,6 +43,26 @@ const mintAsset = async (req, res) => {
     let roast;
 
     try {
+      const userInfo = await validatedUserInfo(body.username);
+
+      if (!userInfo.wallets.includes(body.userAddress.toLowerCase()))
+        return res.status(400).json({
+          error:
+            "The connected wallet is either not paired or the 'Allow Frames' setting is turned off",
+        });
+
+      const signature = new Uint8Array(body.signature);
+      const userPublicKey = publicKey(body.userAddress);
+
+      const isSignatureCorrect = UMI0.eddsa.verify(
+        utf8.serialize(body.username),
+        signature,
+        userPublicKey,
+      );
+
+      if (!isSignatureCorrect)
+        return res.status(401).json({ error: "Signature is incorrect" });
+
       roast = await generateRoast(body.username);
 
       if (!roast?.content)
@@ -71,19 +85,39 @@ const mintAsset = async (req, res) => {
       await page.addStyleTag({ path: "./template/output.css" });
 
       dataUrl = await page.evaluate(
-        async (EMBED_FONT, username, roast) => {
+        async ({
+          embedFont,
+          username,
+          roast,
+          iconUrl,
+          followers,
+          userMonogram,
+        }) => {
           const header = document.getElementById("header");
           const content = document.getElementById("content");
-          header.innerHTML = `${username} on DSCVR`;
+
+          header.innerHTML = `
+          <img src=${iconUrl} alt=${userMonogram} class="w-9 h-9 bg-white rounded-full flex items-center justify-center"/>
+          <div class="flex flex-col text-xs text-white items-center">
+            <span class="text-amber-400">${username}</span>
+            <span id="followers">${followers}</span>
+          </div>
+          `;
+
           content.innerHTML = roast;
           const node = document.getElementById("container");
           return await htmlToImage.toSvg(node, {
-            fontEmbedCSS: EMBED_FONT,
+            fontEmbedCSS: embedFont,
           });
         },
-        EMBED_FONT,
-        body.username,
-        roast.content,
+        {
+          embedFont: EMBED_FONT,
+          username: body.username,
+          roast: roast.content,
+          iconUrl: userInfo.iconUrl,
+          followers: formatFollowerCount(userInfo.followerCount),
+          userMonogram: getFirstTwoLetters(body.username),
+        },
       );
 
       await browser.close();
@@ -143,7 +177,10 @@ const mintAsset = async (req, res) => {
         description: `Roast result for a DSCVR profile`,
         image: `https://storage.cvpfus.xyz/${imagePath}`,
         external_url: "https://cvpfus.xyz",
-        attributes: [{ trait_type: "roastResult", value: roast.content }],
+        attributes: [
+          { trait_type: "modelName", value: roast.modelName },
+          { trait_type: "roastResult", value: roast.content },
+        ],
       }),
       ContentType: "application/json",
     };
