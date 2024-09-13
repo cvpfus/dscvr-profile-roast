@@ -7,8 +7,6 @@ import {
 import { S3, UMI0 } from "../config/index.js";
 import { COLLECTION_ADDRESS, TEST_ADDRESS } from "../constants/index.js";
 import {
-  getAllAssets,
-  getAllAssetsByOwner,
   decodeSvg,
 } from "../utils/asset.js";
 import { PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
@@ -194,58 +192,6 @@ const mintAsset = async (req, res) => {
         publicKey: assetSigner.publicKey,
       },
     });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: error.message || "An unknown error occurred" });
-  }
-};
-
-const getAssets = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 1;
-
-  const offset = (page - 1) * limit;
-
-  try {
-    const assets = await getAllAssets();
-
-    const paginatedAssets = assets.slice(offset, offset + limit);
-
-    const totalAssets = assets.length;
-    const maxPage = Math.ceil(totalAssets / limit);
-
-    return res.json({
-      maxPage,
-      assets: paginatedAssets.map((asset) => ({
-        ...asset,
-        programAddress: TEST_ADDRESS,
-      })),
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: error.message || "An unknown error occurred" });
-  }
-};
-
-const getAssetsByOwner = async (req, res) => {
-  const owner = req.params.owner;
-
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 1;
-
-  const offset = (page - 1) * limit;
-
-  try {
-    const assets = await getAllAssetsByOwner(owner);
-
-    const paginatedAssets = assets.slice(offset, offset + limit);
-
-    const totalAssets = assets.length;
-    const maxPage = Math.ceil(totalAssets / limit);
-
-    return res.json({ maxPage, assets: paginatedAssets });
   } catch (error) {
     return res
       .status(500)

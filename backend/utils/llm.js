@@ -1,6 +1,6 @@
 import { AKASH_API_KEY, groq } from "../config/index.js";
 import axios from "axios";
-import { AKASH_API_URL2 } from "../constants/index.js";
+import { AKASH_API_URL } from "../constants/index.js";
 
 export const akashGenerateContent = async (prompt) => {
   const AKASH_MODEL_NAME = "Meta-Llama-3-1-405B-Instruct-FP8";
@@ -22,7 +22,7 @@ export const akashGenerateContent = async (prompt) => {
       ],
     };
 
-    const response = await axios.post(AKASH_API_URL2, data, config);
+    const response = await axios.post(AKASH_API_URL, data, config);
 
     return {
       content: response.data.choices[0].message.content,

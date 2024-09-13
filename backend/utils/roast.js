@@ -1,5 +1,5 @@
 import { ACTOR } from "../config/index.js";
-import { PROMPT2 } from "../constants/index.js";
+import { PROMPT } from "../constants/index.js";
 import { akashGenerateContent, groqGenerateContent } from "./llm.js";
 
 const getReadableDateFormat = (timestamp) => {
@@ -78,7 +78,7 @@ export const generateRoast = async (username) => {
   };
 
   const prompt = `
-  ${PROMPT2}
+  ${PROMPT}
   
   ${JSON.stringify(roastData)}
   `;

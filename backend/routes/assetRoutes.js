@@ -1,6 +1,5 @@
 import express from "express";
 import assetController from "../controllers/assetController.js";
-import { apiRateLimiter } from "../utils/asset.js";
 
 const router = express.Router();
 
