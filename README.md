@@ -1,7 +1,7 @@
 # RoastMeAI NFT
 [Canvas link](https://dscvr.one/post/1201336802623881379/roastmeai-nft)
 
-Introducing RoastMeAI NFT, a pioneering NFT project built on Metaplex Core that brings AI-powered roasting to the blockchain. By integrating with DSCVR profiles, our AI engine crafts tailor-made roasting comments, offering users an unparalleled level of entertainment.
+Introducing RoastMeAI NFT, a pioneering NFT project built on Metaplex Core that brings AI-powered roasting to the blockchain. By analyzing DSCVR profiles, our AI engine crafts tailor-made roasting comments, offering users an unparalleled level of entertainment.
 
 
 ## Key Features
